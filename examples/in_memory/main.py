@@ -107,6 +107,15 @@ async def uncached_put():
     put_ret = put_ret + 1
     return {"value": put_ret}
 
+put_ret2 = 0
+
+@app.get("/cached_put")
+@cache(namespace="test", expire=5)
+async def cached_put():
+    global put_ret2
+    put_ret2 = put_ret2 + 1
+    return {"value": put_ret2}
+
 
 @app.get("/namespaced_injection")
 @cache(namespace="test", expire=5, injected_dependency_namespace="monty_python")
