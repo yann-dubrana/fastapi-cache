@@ -19,6 +19,8 @@ from starlette.responses import JSONResponse
 from starlette.templating import (
     _TemplateResponse as TemplateResponse,  # pyright: ignore[reportPrivateUsage]
 )
+
+
 class ModelField:
     pass
 
