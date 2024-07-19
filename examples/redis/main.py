@@ -1,5 +1,7 @@
 # pyright: reportGeneralTypeIssues=false
+from contextlib import asynccontextmanager
 import time
+from typing import AsyncIterator
 
 import pendulum
 import uvicorn
@@ -17,7 +19,15 @@ from starlette.responses import JSONResponse, Response
 import redis.asyncio as redis
 from redis.asyncio.connection import ConnectionPool
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    pool = ConnectionPool.from_url(url="redis://redis")
+    r = redis.Redis(connection_pool=pool)
+    FastAPICache.init(RedisBackend(r), prefix="fastapi-cache")
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.mount(
     path="/static",
@@ -78,13 +88,6 @@ async def cache_html(request: Request):
 @cache(namespace="test", expire=5)
 async def cache_response_obj():
     return JSONResponse({"a": 1})
-
-
-@app.on_event("startup")
-async def startup():
-    pool = ConnectionPool.from_url(url="redis://redis")
-    r = redis.Redis(connection_pool=pool)
-    FastAPICache.init(RedisBackend(r), prefix="fastapi-cache")
 
 
 if __name__ == "__main__":
