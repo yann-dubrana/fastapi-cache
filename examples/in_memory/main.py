@@ -1,5 +1,6 @@
 # pyright: reportGeneralTypeIssues=false
-from typing import Dict, Optional
+from contextlib import asynccontextmanager
+from typing import AsyncIterator, Dict, Optional
 
 import pendulum
 import uvicorn
@@ -11,7 +12,13 @@ from pydantic import BaseModel
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    FastAPICache.init(InMemoryBackend())
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 ret = 0
 
@@ -117,11 +124,6 @@ def namespaced_injection(
         "__fastapi_cache_request": __fastapi_cache_request,
         "__fastapi_cache_response": __fastapi_cache_response,
     }
-
-
-@app.on_event("startup")
-async def startup():
-    FastAPICache.init(InMemoryBackend())
 
 
 if __name__ == "__main__":
