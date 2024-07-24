@@ -29,8 +29,8 @@ _T = TypeVar("_T", bound=type)
 
 CONVERTERS: Dict[str, Callable[[str], Any]] = {
     # Pendulum 3.0.0 adds parse to __all__, at which point these ignores can be removed
-    "date": lambda x: pendulum.parse(x, exact=True),  # type: ignore[attr-defined]
-    "datetime": lambda x: pendulum.parse(x, exact=True),  # type: ignore[attr-defined]
+    "date": lambda x: pendulum.parse(x, exact=True),
+    "datetime": lambda x: pendulum.parse(x, exact=True),
     "decimal": Decimal,
 }
 

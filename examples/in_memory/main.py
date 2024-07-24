@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
+
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     FastAPICache.init(InMemoryBackend())
@@ -64,7 +65,7 @@ async def get_kwargs(name: str):
 
 
 @app.get("/sync-me")
-@cache(namespace="test")
+@cache(namespace="test") # pyright: ignore[reportArgumentType]
 def sync_me():
     # as per the fastapi docs, this sync function is wrapped in a thread,
     # thereby converted to async. fastapi-cache does the same.
@@ -125,7 +126,7 @@ async def cached_put():
 
 
 @app.get("/namespaced_injection")
-@cache(namespace="test", expire=5, injected_dependency_namespace="monty_python")
+@cache(namespace="test", expire=5, injected_dependency_namespace="monty_python") # pyright: ignore[reportArgumentType]
 def namespaced_injection(
     __fastapi_cache_request: int = 42, __fastapi_cache_response: int = 17
 ) -> Dict[str, int]:

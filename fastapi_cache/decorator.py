@@ -93,6 +93,7 @@ def cache(
 ) -> Callable[[Callable[P, Awaitable[R]]], Callable[P, Awaitable[Union[R, Response]]]]:
     """
     cache all function
+    :param injected_dependency_namespace:
     :param namespace:
     :param expire:
     :param coder:
