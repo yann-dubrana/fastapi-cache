@@ -99,10 +99,10 @@ def test_pydantic_model() -> None:
 
 def test_non_get() -> None:
     with TestClient(app) as client:
-        response = client.put("/uncached_put")
+        response = client.put("/cached_put")
         assert "X-FastAPI-Cache" not in response.headers
         assert response.json() == {"value": 1}
-        response = client.put("/uncached_put")
+        response = client.put("/cached_put")
         assert "X-FastAPI-Cache" not in response.headers
         assert response.json() == {"value": 2}
 
@@ -112,3 +112,26 @@ def test_alternate_injected_namespace() -> None:
         response = client.get("/namespaced_injection")
         assert response.headers.get("X-FastAPI-Cache") == "MISS"
         assert response.json() == {"__fastapi_cache_request": 42, "__fastapi_cache_response": 17}
+
+def test_cache_control() -> None:
+    with TestClient(app) as client:
+        response = client.get("/cached_put")
+        assert response.json() == {"value": 1}
+
+        # HIT
+        response = client.get("/cached_put")
+        assert response.json() == {"value": 1}
+
+        # no-cache
+        response = client.get("/cached_put", headers={"Cache-Control": "no-cache"})
+        assert response.json() == {"value": 2}
+
+        response = client.get("/cached_put")
+        assert response.json() == {"value": 2}
+
+        # no-store
+        response = client.get("/cached_put", headers={"Cache-Control": "no-store"})
+        assert response.json() == {"value": 3}
+
+        response = client.get("/cached_put")
+        assert response.json() == {"value": 2}
