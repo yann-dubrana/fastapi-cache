@@ -221,7 +221,8 @@ def cache(
                         return response
 
                 result = cast(R, coder.decode_as_type(cached, type_=return_type))
-
+                if isinstance(result, Response):
+                    result.headers.update(response.headers)
             return result
 
         inner.__signature__ = _augment_signature(wrapped_signature, *to_inject)  # type: ignore[attr-defined]
